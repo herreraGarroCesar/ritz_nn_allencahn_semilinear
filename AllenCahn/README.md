@@ -108,6 +108,12 @@ $\varepsilon^2=10^{-5}$, $N=30$, $T_{\text{final}}=1$, `AC_CSS_NB` with $K=10000
 (or `AC_BDF2_NB` with $K=100$). Reported errors: relative $H^1$-seminorm and $L^2$
 errors against the exact solution.
 
+![Allen–Cahn travelling front](../docs/figures/allen_cahn_front.png)
+
+*`AC_BDF2_NB` with $N=30$ and only $K=10$ time steps up to $t=1$ (initialised by
+`LS`): the breakpoints follow the moving interface. Relative errors at $t=1$:
+$1.7\times10^{-1}$ in the $H^1$ seminorm and $4.8\times10^{-3}$ in $L^2$.*
+
 ### Test 2 – two interfaces (`test2.py`, DB solvers, `u_id = 1`)
 
 $$
