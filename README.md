@@ -170,5 +170,3 @@ solver.plot_no_vlines()
 * Runtime: the code favours clarity over speed (many Python loops and
   `scipy.integrate.quad` calls). The default Allen–Cahn tests (thousands of time
   steps) can take a long time; reduce `K`, `max_itr` or `N` for a quick look.
-* See the *Known issues* sections in the sub-READMEs for details about the
-  manufactured right-hand sides.

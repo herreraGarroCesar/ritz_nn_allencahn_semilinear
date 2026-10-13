@@ -80,11 +80,11 @@ class DR3_D:
     def f(self, x): 
         match self.u_id:
             case 1:
-                return  -40000*(x**3 -2*(x**2)/3 + 173*x/1800 + 1/300)*np.exp(-100*(x-1/3)**2) + (self.u(x))**3
+                return  -(self.eps**2)*40000*(x**3 -2*(x**2)/3 + 173*x/1800 + 1/300)*np.exp(-100*(x-1/3)**2) + (self.u(x))**3 + self.u(x)
             case 2:
-                return -2*(self.eps - 4*(x**2)*np.tanh((x**2 - 1/4)/self.eps))*(1/np.cosh((x**2 -1/4)/self.eps))**2 + (self.u(x))**3
+                return -2*(self.eps - 4*(x**2)*np.tanh((x**2 - 1/4)/self.eps))*(1/np.cosh((x**2 -1/4)/self.eps))**2 + (self.u(x))**3 + self.u(x)
             case _:
-                return  -40000*(x**3 -2*(x**2)/3 + 173*x/1800 + 1/300)*np.exp(-100*(x-1/3)**2) + (self.u(x))**3
+                return  -(self.eps**2)*40000*(x**3 -2*(x**2)/3 + 173*x/1800 + 1/300)*np.exp(-100*(x-1/3)**2) + (self.u(x))**3 + self.u(x)
 
     def relu(self, x):
         return np.maximum(0, x)
@@ -571,13 +571,9 @@ class DR3_D:
 
     ## For plotting
     def plot_error(self):
-        errorMeshNewt = np.linspace(0, len(self.errorNewt), len(self.errorNewt))
         plt.figure(figsize=(7.5, 7.5))
-        plt.plot(errorMeshNewt, self.errorNewt, linewidth=2)
-        if self.refinement_list:
-            plt.vlines(self.refinement_list,ymin= min(self.errorNewt), ymax=max(self.errorNewt), linestyles='dotted',colors='gray')
-            plt.scatter(self.refinement_list, min(self.errorNewt)*np.ones(len(self.refinement_list)), marker='x', color='red', label='Refinement')        
-            plt.legend() 
+        plt.plot(np.arange(len(self.h1_error)), self.h1_error, linewidth=2)
+        plt.xlabel('Newton iteration')
         plt.ylabel('Relative seminorm error')
         plt.yscale('log')
         plt.show()

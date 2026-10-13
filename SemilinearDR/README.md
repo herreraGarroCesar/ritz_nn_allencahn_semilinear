@@ -62,12 +62,13 @@ above. The algorithm (see the top-level README) alternates:
 
 | `u_id` | exact solution $u(x)$ | typical domain | classes |
 |---|---|---|---|
-| 1 | $x\big(e^{-(x-1/3)^2/0.01} - e^{-(4/9)/0.01}\big)$ (right-hand side derived for $\varepsilon = 1$) | $[0,1]$ | D, N |
+| 1 | $x\big(e^{-(x-1/3)^2/0.01} - e^{-(4/9)/0.01}\big)$ | $[0,1]$ | D, N |
 | 2 | $\tanh\!\big(\tfrac{x^2-1/4}{\varepsilon}\big) - \tanh\!\big(\tfrac{3}{4\varepsilon}\big) + 1$ — two interior layers at $x=\pm\tfrac12$ | $[-1,1]$ | D, N |
 | 3 | $\tanh\!\big(\tfrac{x-1/2}{\sqrt2\,\varepsilon}\big)$ — one interior layer | $[0,1]$ | N |
 
-The right-hand side $f$ is defined in `f(x)` from the exact solution, and the
-boundary data $\alpha$, $\beta$ are taken from it.
+The right-hand side $f=-\varepsilon^2u''+u^3+u$ is defined in `f(x)` from the exact
+solution (for any $\varepsilon$), and the boundary data $\alpha$, $\beta$ are taken
+from it.
 
 ## Errors and output
 
@@ -99,6 +100,7 @@ Methods:
   `Newton(max_itr=100, lr=1, tau_1=1e-6)` (`DR3_N`) – runs the solver; `lr` is the
   step length for the breakpoints and `tau_1` the threshold below which a neuron
   ($|c_i|<\tau_1$) is considered dead and is redistributed.
+* `plot_error()` – relative $H^1$-seminorm error vs. Newton iteration.
 * `plot()` – exact vs. network solution with breakpoints marked.
 * `plot_no_vlines()` – same, with breakpoints shown as ticks.
 * `u`, `u_prime`, `f` – exact solution, its derivative and the right-hand side.
@@ -122,22 +124,3 @@ and the relative $H^1$-seminorm error decreases over the Newton iterations.*
 `mainDR3.py` runs `DR3_N` with `N=20`, `u_id=2` on $[-1,1]$ with
 $\varepsilon^2=10^{-7}$ and `max_itr=0` (only the initial solve for $c$ on a uniform
 mesh). Increase `max_itr` to move the breakpoints with Newton's method.
-
-## Known issues
-
-These are documented here and left untouched in the code:
-
-* **Missing linear reaction term in some right-hand sides.** The solvers discretize
-  $-\varepsilon^2u''+u^3+u$, but `f` omits the `+ u(x)` term in `DR3_D` for
-  `u_id = 1, 2` and in `DR3_N` for `u_id = 1`. In those cases the stated `u` is the
-  exact solution of $-\varepsilon^2u''+u^3=f$, not of the problem being solved, so
-  the reported errors are measured against a slightly different function.
-  (`DR3_N` with `u_id = 2, 3` is consistent.)
-* **`DR3_N.u_prime` for `u_id = 3`** is missing the square of the
-  $\operatorname{sech}$ factor; the correct derivative is
-  $\operatorname{sech}^2\!\big(\tfrac{x-1/2}{\sqrt2\varepsilon}\big)/(\sqrt2\varepsilon)$.
-  This affects $|u|_{H^1}$ (hence the relative error) and $\beta=u'(b)$.
-* **`DR3_N.gradC`** includes the Neumann boundary term only for `u_id = 2`. For the
-  other examples $u'(b)\approx 0$, so the effect is negligible.
-* **`plot_error()`** refers to attributes (`errorNewt`, `refinement_list`) that are
-  not defined in these classes; use `h1_error` / `residual` instead.

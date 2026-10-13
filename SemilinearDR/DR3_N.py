@@ -64,15 +64,15 @@ class DR3_N:
             case 2:
                 return (1/np.cosh((x**2 - 1/4) / self.eps))**2 * (2*x / self.eps)
             case 3:
-                return (1/np.cosh((x - 0.5)/(np.sqrt(2)*self.eps)))*(1/(np.sqrt(2)*self.eps))
+                return (1/np.cosh((x - 0.5)/(np.sqrt(2)*self.eps)))**2*(1/(np.sqrt(2)*self.eps))
             case _:
                 return np.exp(-100*(x - 1/3)**2) * (-200*x**2 + (200/3)*x + 1)
 
     def f(self, x):
         match self.u_id:
             case 1:
-                return (-40000*(x**3 - 2*x**2/3 + 173*x/1800 + 1/300)
-                        * np.exp(-100*(x - 1/3)**2) + self.u(x)**3)
+                return (-self.eps**2*40000*(x**3 - 2*x**2/3 + 173*x/1800 + 1/300)
+                        * np.exp(-100*(x - 1/3)**2) + self.u(x)**3 + self.u(x))
             case 2:
                 return (-2*(self.eps - 4*x**2 * np.tanh((x**2 - 1/4) / self.eps))
                         * (1/np.cosh((x**2 - 1/4) / self.eps))**2
@@ -85,8 +85,8 @@ class DR3_N:
                 # f''(x) = -(1/eps^2) * (1 - tanh^2(u)) * tanh(u)
                 return  (1.0 - tanh_u**2) * tanh_u + (self.u(x))**3 + self.u(x)
             case _:
-                return (-40000*(x**3 - 2*x**2/3 + 173*x/1800 + 1/300)
-                        * np.exp(-100*(x - 1/3)**2) + self.u(x)**3)
+                return (-self.eps**2*40000*(x**3 - 2*x**2/3 + 173*x/1800 + 1/300)
+                        * np.exp(-100*(x - 1/3)**2) + self.u(x)**3 + self.u(x))
 
     def relu(self, x):
         return np.maximum(0, x)
@@ -305,6 +305,7 @@ class DR3_N:
             else:
                 integrand = lambda x, bi=b[i]: self.f(x) * (x - bi)
                 gradC[i] -= integrate.quad(integrand, b[i], self.b)[0]
+                gradC[i] -= eps2 * self.beta * (self.b - b[i])
         return gradC
 
     def solveC(self, theta, y):
@@ -496,17 +497,9 @@ class DR3_N:
     # --- Plotting ---
 
     def plot_error(self):
-        mesh = np.linspace(0, len(self.errorNewt), len(self.errorNewt))
         plt.figure(figsize=(7.5, 7.5))
-        plt.plot(mesh, self.errorNewt, linewidth=2)
-        if self.refinement_list:
-            plt.vlines(self.refinement_list,
-                       ymin=min(self.errorNewt), ymax=max(self.errorNewt),
-                       linestyles='dotted', colors='gray')
-            plt.scatter(self.refinement_list,
-                        min(self.errorNewt) * np.ones(len(self.refinement_list)),
-                        marker='x', color='red', label='Refinement')
-            plt.legend()
+        plt.plot(np.arange(len(self.h1_error)), self.h1_error, linewidth=2)
+        plt.xlabel('Newton iteration')
         plt.ylabel('Relative seminorm error')
         plt.yscale('log')
         plt.show()
